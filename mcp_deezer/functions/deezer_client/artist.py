@@ -1,6 +1,8 @@
 from .base import BaseDeezerClient
 from types.artist import Artist
 from types.track import Track
+from types.album import Album
+from types.playlist import Playlist
 from typing import List
 
 
@@ -33,7 +35,7 @@ class ArtistClient(BaseDeezerClient):
 
     async def get_top_tracks(self, artist_id: int) -> List[Track]:
         """
-        Get the top tracks of a given artist.
+        Get the 5 top tracks of a given artist.
 
         Args:
             artist_id (int): The artist's ID.
@@ -43,3 +45,42 @@ class ArtistClient(BaseDeezerClient):
         """
         response = await self._get(f"artist/{artist_id}/top")
         return [Track(**item) for item in response.get("data", [])]
+
+    async def get_albums(self, artist_id: int) -> List[Album]:
+        """
+        Get all albums of a given artist.
+
+        Args:
+            artist_id (int): The artist's ID.
+
+        Returns:
+            List[Album]: A list of the artist's albums.
+        """
+        response = await self._get(f"artist/{artist_id}/albums")
+        return [Album(**item) for item in response.get("data", [])]
+
+    async def get_related_artists(self, artist_id: int) -> List[Artist]:
+        """
+        Get related artists for a given artist.
+
+        Args:
+            artist_id (int): The artist's ID.
+
+        Returns:
+            List[Artist]: A list of related artists.
+        """
+        response = await self._get(f"artist/{artist_id}/related")
+        return [Artist(**item) for item in response.get("data", [])]
+
+    async def get_playlists(self, artist_id: int) -> List[Playlist]:
+        """
+        Get playlists featuring a given artist.
+
+        Args:
+            artist_id (int): The artist's ID.
+
+        Returns:
+            List[Playlist]: A list of playlists related to the artist.
+        """
+        response = await self._get(f"artist/{artist_id}/playlists")
+        return [Playlist(**item) for item in response.get("data", [])]
