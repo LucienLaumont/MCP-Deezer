@@ -1,9 +1,9 @@
-from .base import BaseDeezerClient
-from types.track import Track
+from mcp_deezer.functions.deezer_client.base import BaseDeezerClient
+from mcp_deezer.types import DeezerTrack
 
 
 class TrackClient(BaseDeezerClient):
-    async def get_track(self, track_id: int) -> Track:
+    async def get_track(self, track_id: int) -> DeezerTrack:
         """
         Retrieve full details of a track by its ID.
 
@@ -11,7 +11,7 @@ class TrackClient(BaseDeezerClient):
             track_id (int): The unique identifier of the track.
 
         Returns:
-            Track: A Pydantic model containing track information.
+            DeezerTrack: A Pydantic model containing track information.
         """
         response = await self._get(f"track/{track_id}")
-        return Track(**response)
+        return DeezerTrack(**response)

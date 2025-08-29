@@ -4,8 +4,6 @@ from functools import lru_cache
 from pathlib import Path
 
 class Settings(BaseSettings):
-    mistral_api_key: str
-    mistral_model: str
 
     deezer_base_url: str = "https://api.deezer.com"
 
