@@ -24,9 +24,17 @@ git clone https://github.com/votre-username/MCP-Deezer.git
 cd MCP-Deezer
 ```
 
-### 2. Installer les dépendances
+### 2. Créer un environnement virtuel et installer les dépendances
 
 ```bash
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+pip install -r requirements.txt
+
+# macOS/Linux
+source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -34,18 +42,18 @@ pip install -r requirements.txt
 
 #### **Windows :**
 
-1. Localisez votre fichier de configuration Claude Desktop :
+1. Localisez votre fichier de configuration MCP de Claude Desktop :
    ```
-   %APPDATA%\Claude\config.json
+   %APPDATA%\Claude\claude_desktop_config.json
    ```
 
-2. Ajoutez cette configuration à votre fichier `config.json` :
+2. Ajoutez cette configuration à votre fichier `claude_desktop_config.json` :
 
 ```json
 {
   "mcpServers": {
     "deezer-api": {
-      "command": "python",
+      "command": "CHEMIN_COMPLET_VERS_VOTRE_PROJET\\MCP-Deezer\\.venv\\Scripts\\python.exe",
       "args": [
         "CHEMIN_COMPLET_VERS_VOTRE_PROJET\\MCP-Deezer\\run_server.py"
       ],
@@ -57,13 +65,15 @@ pip install -r requirements.txt
 }
 ```
 
-**⚠️ Important :** Remplacez `CHEMIN_COMPLET_VERS_VOTRE_PROJET` par le chemin réel vers votre dossier.
+**⚠️ Important :** 
+- Remplacez `CHEMIN_COMPLET_VERS_VOTRE_PROJET` par le chemin réel vers votre dossier
+- Utilisez le Python de l'environnement virtuel (`.venv\Scripts\python.exe`)
 
 #### **macOS/Linux :**
 
-Le fichier de configuration se trouve généralement dans :
+Le fichier de configuration MCP se trouve généralement dans :
 ```
-~/Library/Application Support/Claude/config.json
+~/Library/Application Support/Claude/claude_desktop_config.json
 ```
 
 Utilisez des barres obliques normales (`/`) dans les chemins.
@@ -146,9 +156,10 @@ MCP-Deezer/
 3. Vérifiez les logs dans `deezer_mcp_server.log`
 
 ### Claude Desktop ne voit pas le serveur
-1. Vérifiez le chemin dans `config.json`
+1. Vérifiez le chemin dans `claude_desktop_config.json`
 2. Assurez-vous d'avoir redémarré Claude Desktop
-3. Vérifiez que le fichier `config.json` est valide (JSON bien formé)
+3. Vérifiez que le fichier `claude_desktop_config.json` est valide (JSON bien formé)
+4. Allez dans **Développeur > Serveurs MCP locaux** pour vérifier la configuration
 
 ### Erreurs d'API
 - L'API Deezer est publique et ne nécessite pas de clé

@@ -330,20 +330,24 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
 
 async def main():
     """Main entry point for the server."""
-    # Run the server using stdin/stdout streams
-    async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        await server.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="deezer-api-server",
-                server_version="1.0.0",
-                capabilities=server.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={}
+    try:
+        # Run the server using stdin/stdout streams
+        async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
+            await server.run(
+                read_stream,
+                write_stream,
+                InitializationOptions(
+                    server_name="deezer-api-server",
+                    server_version="1.0.0",
+                    capabilities=server.get_capabilities(
+                        notification_options=NotificationOptions(),
+                        experimental_capabilities={}
+                    )
                 )
             )
-        )
+    except Exception as e:
+        logger.error(f"Server error: {e}")
+        raise
 
 
 if __name__ == "__main__":

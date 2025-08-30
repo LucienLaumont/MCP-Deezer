@@ -12,15 +12,15 @@ from pathlib import Path
 import shutil
 
 def get_claude_config_path():
-    """Retourne le chemin vers le fichier de configuration Claude Desktop."""
+    """Retourne le chemin vers le fichier de configuration Claude Desktop MCP."""
     system = platform.system()
     
     if system == "Windows":
-        return Path(os.getenv("APPDATA")) / "Claude" / "config.json"
+        return Path(os.getenv("APPDATA")) / "Claude" / "claude_desktop_config.json"
     elif system == "Darwin":  # macOS
-        return Path.home() / "Library" / "Application Support" / "Claude" / "config.json"
+        return Path.home() / "Library" / "Application Support" / "Claude" / "claude_desktop_config.json"
     elif system == "Linux":
-        return Path.home() / ".config" / "Claude" / "config.json"
+        return Path.home() / ".config" / "Claude" / "claude_desktop_config.json"
     else:
         raise Exception(f"Système d'exploitation non supporté: {system}")
 
@@ -85,17 +85,19 @@ def update_claude_config():
     if "mcpServers" not in config:
         config["mcpServers"] = {}
     
-    # Chemin vers le script de lancement
+    # Chemin vers le script de lancement et Python de l'environnement virtuel
     run_script_path = project_root / "run_server.py"
     
     # Configuration pour Windows vs Unix
     if platform.system() == "Windows":
         script_path_str = str(run_script_path).replace("/", "\\")
+        python_path = str(project_root / ".venv" / "Scripts" / "python.exe").replace("/", "\\")
     else:
         script_path_str = str(run_script_path)
+        python_path = str(project_root / ".venv" / "bin" / "python")
     
     config["mcpServers"]["deezer-api"] = {
-        "command": "python",
+        "command": python_path,
         "args": [script_path_str],
         "env": {
             "DEEZER_BASE_URL": "https://api.deezer.com"
