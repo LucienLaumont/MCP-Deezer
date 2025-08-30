@@ -295,7 +295,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
                              f"**Creator:** {creator_name}\n"
                              f"**Tracks:** {result.nb_tracks}\n"
                              f"**Duration:** {result.duration}s\n"
-                             f"**Fans:** {result.fans:,}\n"
+                             f"**Fans:** {result.fans:,}\n" if result.fans is not None else "**Fans:** N/A\n"
                              f"**Public:** {'Yes' if result.public else 'No'}\n"
                              f"**Link:** {result.link}\n"
                              f"**Picture:** {result.picture_medium or 'N/A'}"
@@ -315,7 +315,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
                         creator_name = playlist.creator.name if playlist.creator else "Unknown"
                         playlists_text += f"**{i}.** {playlist.title} by {creator_name}\n"
                         playlists_text += f"   Tracks: {playlist.nb_tracks}\n"
-                        playlists_text += f"   Fans: {playlist.fans:,}\n"
+                        playlists_text += f"   Fans: {playlist.fans:,}\n" if playlist.fans is not None else "   Fans: N/A\n"
                         playlists_text += f"   Public: {'Yes' if playlist.public else 'No'}\n"
                         playlists_text += f"   Link: {playlist.link}\n\n"
                     return [TextContent(type="text", text=playlists_text)]
