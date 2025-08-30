@@ -1,30 +1,30 @@
 # 🎵 MCP Deezer API Server
 
-Un serveur MCP (Model Context Protocol) qui permet à Claude Desktop d'accéder à l'API Deezer pour rechercher des titres, artistes, albums et playlists.
+A professional MCP (Model Context Protocol) server that enables Claude Desktop to access the Deezer API for searching tracks, artists, albums, and playlists with comprehensive music data retrieval.
 
-## 🚀 Fonctionnalités
+## 🚀 Features
 
-- **🎵 Recherche de titres** - Par nom ou par artiste
-- **🎤 Recherche d'artistes** - Informations détaillées et statistiques
-- **💿 Recherche d'albums** - Avec nombre de pistes et date de sortie
-- **🎼 Recherche de playlists** - Publiques et privées avec filtres
+- **🎵 Track Search** - Search by name or artist with detailed metadata
+- **🎤 Artist Search** - Comprehensive artist information with statistics
+- **💿 Album Search** - Full album details with track count and release dates
+- **🎼 Playlist Search** - Public and private playlists with advanced filtering
 
-## 📋 Prérequis
+## 📋 Prerequisites
 
-- **Python 3.8+** installé sur votre système
-- **Claude Desktop** installé et fonctionnel
-- Connexion internet pour accéder à l'API Deezer
+- **Python 3.8+** installed on your system
+- **Claude Desktop** application installed and configured
+- Active internet connection for Deezer API access
 
 ## 🛠️ Installation
 
-### 1. Cloner le repository
+### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/votre-username/MCP-Deezer.git
+git clone https://github.com/your-username/MCP-Deezer.git
 cd MCP-Deezer
 ```
 
-### 2. Créer un environnement virtuel et installer les dépendances
+### 2. Set Up Virtual Environment and Install Dependencies
 
 ```bash
 python -m venv .venv
@@ -38,16 +38,16 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configuration de Claude Desktop
+### 3. Claude Desktop Configuration
 
-#### **Windows :**
+#### **Windows:**
 
-1. Localisez votre fichier de configuration MCP de Claude Desktop :
+1. Locate your Claude Desktop MCP configuration file:
    ```
    %APPDATA%\Claude\claude_desktop_config.json
    ```
 
-2. Ajoutez cette configuration à votre fichier `claude_desktop_config.json` :
+2. Add this configuration to your `claude_desktop_config.json` file:
 
 ```json
 {
@@ -65,127 +65,133 @@ pip install -r requirements.txt
 }
 ```
 
-**⚠️ Important :** 
-- Remplacez `CHEMIN_COMPLET_VERS_VOTRE_PROJET` par le chemin réel vers votre dossier
-- Utilisez le Python de l'environnement virtuel (`.venv\Scripts\python.exe`)
+**⚠️ Important:** 
+- Replace `CHEMIN_COMPLET_VERS_VOTRE_PROJET` with the actual path to your project folder
+- Use the Python executable from the virtual environment (`.venv\Scripts\python.exe`)
 
-#### **macOS/Linux :**
+#### **macOS/Linux:**
 
-Le fichier de configuration MCP se trouve généralement dans :
+The MCP configuration file is typically located at:
 ```
 ~/Library/Application Support/Claude/claude_desktop_config.json
 ```
 
-Utilisez des barres obliques normales (`/`) dans les chemins.
+Use forward slashes (`/`) for paths and `.venv/bin/python` for the Python executable.
 
-### 4. Redémarrer Claude Desktop
+### 4. Restart Claude Desktop
 
-Fermez complètement Claude Desktop et relancez-le.
+Close Claude Desktop completely and restart the application.
 
-## 🎯 Utilisation
+## 🎯 Usage
 
-Une fois configuré, vous pouvez utiliser ces commandes dans Claude Desktop :
+Once configured, you can use these commands in Claude Desktop:
 
-### Exemples de requêtes :
-
-```
-Trouve-moi des informations sur l'artiste Daft Punk
-```
+### Example Queries:
 
 ```
-Cherche le titre "Blinding Lights" par The Weeknd
+Find information about the artist Daft Punk
 ```
 
 ```
-Trouve l'album "Random Access Memories"
+Search for the track "Blinding Lights" by The Weeknd
 ```
 
 ```
-Cherche des playlists populaires avec "Rock"
+Find the album "Random Access Memories"
 ```
 
 ```
-Donne-moi 5 titres de Ed Sheeran
+Search for popular playlists with "Rock"
 ```
 
-## 🔧 Test de l'installation
+```
+Give me 5 tracks by Ed Sheeran
+```
 
-Pour vérifier que tout fonctionne, vous pouvez tester le serveur manuellement :
+## 🔧 Installation Testing
+
+To verify everything works correctly, you can test the server manually:
 
 ```bash
 python test_deezer_clients.py
 ```
 
-Ce script teste tous les clients avec du contenu populaire de Deezer.
+This script tests all clients with popular Deezer content.
 
-## 🛠️ Outils MCP disponibles
+## 🛠️ Available MCP Tools
 
-| Outil | Description | Paramètres |
-|-------|-------------|------------|
-| `search_track` | Chercher un titre | `track_name`, `limit` (optionnel) |
-| `search_track_by_artist` | Chercher un titre par artiste | `track_name`, `artist_name` |
-| `search_artist` | Chercher un artiste | `artist_name`, `limit` (optionnel) |
-| `search_album` | Chercher un album | `album_name`, `limit` (optionnel) |
-| `search_playlist` | Chercher une playlist | `playlist_name`, `limit`, `public_only` |
+| Tool | Description | Parameters |
+|------|-------------|------------|
+| `search_track` | Search for a track | `track_name`, `limit` (optional) |
+| `search_track_by_artist` | Search track by artist | `track_name`, `artist_name` |
+| `search_artist` | Search for an artist | `artist_name`, `limit` (optional) |
+| `search_album` | Search for an album | `album_name`, `limit` (optional) |
+| `search_playlist` | Search for playlists | `playlist_name`, `limit`, `public_only` |
 
-## 📁 Structure du projet
+## 📁 Project Structure
 
 ```
 MCP-Deezer/
 ├── mcp_deezer/
 │   ├── functions/
 │   │   └── deezer_client/
-│   │       ├── base.py          # Client de base
-│   │       ├── track.py         # Client pour les titres
-│   │       ├── artist.py        # Client pour les artistes  
-│   │       ├── album.py         # Client pour les albums
-│   │       └── playlist.py      # Client pour les playlists
-│   ├── server.py                # Serveur MCP principal
-│   └── types.py                 # Types Pydantic
-├── run_server.py                # Script de lancement
-├── test_deezer_clients.py       # Tests des clients
-├── requirements.txt             # Dépendances Python
-└── README.md                    # Ce fichier
+│   │       ├── base.py          # Base HTTP client
+│   │       ├── track.py         # Track search client
+│   │       ├── artist.py        # Artist search client  
+│   │       ├── album.py         # Album search client
+│   │       └── playlist.py      # Playlist search client
+│   ├── server.py                # Main MCP server
+│   └── types.py                 # Pydantic type definitions
+├── run_server.py                # Server entry point
+├── test_deezer_clients.py       # Client testing suite
+├── requirements.txt             # Python dependencies
+└── README.md                    # This file
 ```
 
-## 🐛 Dépannage
+## 🐛 Troubleshooting
 
-### Le serveur ne démarre pas
-1. Vérifiez que Python est installé : `python --version`
-2. Vérifiez les dépendances : `pip install -r requirements.txt`
-3. Vérifiez les logs dans `deezer_mcp_server.log`
+### Server Won't Start
+1. Verify Python is installed: `python --version`
+2. Check dependencies are installed: `pip install -r requirements.txt`
+3. Ensure you're using the virtual environment Python executable
+4. Check logs for error messages
 
-### Claude Desktop ne voit pas le serveur
-1. Vérifiez le chemin dans `claude_desktop_config.json`
-2. Assurez-vous d'avoir redémarré Claude Desktop
-3. Vérifiez que le fichier `claude_desktop_config.json` est valide (JSON bien formé)
-4. Allez dans **Développeur > Serveurs MCP locaux** pour vérifier la configuration
+### Claude Desktop Can't See the Server
+1. Verify the path in `claude_desktop_config.json`
+2. Ensure Claude Desktop has been completely restarted
+3. Verify `claude_desktop_config.json` is valid JSON
+4. Check **Developer > Local MCP Servers** to verify configuration
 
-### Erreurs d'API
-- L'API Deezer est publique et ne nécessite pas de clé
-- Vérifiez votre connexion internet
-- Certains contenus peuvent être indisponibles selon votre région
+### API Errors
+- The Deezer API is public and requires no authentication key
+- Verify your internet connection
+- Some content may be unavailable based on your region
 
-## 🤝 Contribution
+## 🤝 Contributing
 
-Les contributions sont bienvenues ! N'hésitez pas à :
+Contributions are welcome! Please feel free to:
 
-1. Fork le projet
-2. Créer une branche pour votre fonctionnalité
-3. Commit vos changements
-4. Push vers la branche
-5. Ouvrir une Pull Request
+1. Fork the project
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
-## 📄 Licence
+## 📄 License
 
-Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour les détails.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Remerciements
+## 👨‍💻 Author
 
-- [Deezer](https://www.deezer.com/) pour leur API publique
-- [Anthropic](https://www.anthropic.com/) pour Claude et le protocole MCP
-- La communauté Python pour les excellentes bibliothèques utilisées
+**Lucien Laumont**  
+📧 [laumontlucien@gmail.com](mailto:laumontlucien@gmail.com)
+
+## 🙏 Acknowledgments
+
+- [Deezer](https://www.deezer.com/) for providing their public API
+- [Anthropic](https://www.anthropic.com/) for Claude and the MCP protocol
+- The Python community for excellent libraries and tools
 
 ---
 
-**Made with ❤️ for the Claude Desktop community**
+**Built with ❤️ for the Claude Desktop community**
