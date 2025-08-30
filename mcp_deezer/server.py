@@ -2,6 +2,9 @@
 """
 MCP Server for Deezer API integration.
 Provides tools to search and retrieve information about tracks, artists, albums, and playlists from Deezer.
+
+Copyright (c) 2025 Lucien Laumont
+Licensed under the MIT License - see LICENSE file for details.
 """
 
 import asyncio

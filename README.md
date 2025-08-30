@@ -55,7 +55,7 @@ pip install -r requirements.txt
     "deezer-api": {
       "command": "CHEMIN_COMPLET_VERS_VOTRE_PROJET\\MCP-Deezer\\.venv\\Scripts\\python.exe",
       "args": [
-        "CHEMIN_COMPLET_VERS_VOTRE_PROJET\\MCP-Deezer\\run_server.py"
+        "ABSOLUTE_PATH_TO_YOUR_PROJECT\\MCP-Deezer\\run_server.py"
       ],
       "env": {
         "DEEZER_BASE_URL": "https://api.deezer.com"
@@ -66,7 +66,7 @@ pip install -r requirements.txt
 ```
 
 **⚠️ Important:** 
-- Replace `CHEMIN_COMPLET_VERS_VOTRE_PROJET` with the actual path to your project folder
+- Replace `ABSOLUTE_PATH_TO_YOUR_PROJECT` with the actual path to your project folder
 - Use the Python executable from the virtual environment (`.venv\Scripts\python.exe`)
 
 #### **macOS/Linux:**
@@ -166,16 +166,6 @@ MCP-Deezer/
 - The Deezer API is public and requires no authentication key
 - Verify your internet connection
 - Some content may be unavailable based on your region
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to:
-
-1. Fork the project
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Open a Pull Request
 
 ## 📄 License
 

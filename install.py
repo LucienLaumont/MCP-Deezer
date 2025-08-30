@@ -2,6 +2,9 @@
 """
 Automatic installation script for MCP Deezer.
 Automatically configures Claude Desktop to use the MCP Deezer server.
+
+Copyright (c) 2025 Lucien Laumont
+Licensed under the MIT License - see LICENSE file for details.
 """
 
 import json

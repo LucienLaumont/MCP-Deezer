@@ -3,6 +3,9 @@
 Test script for all Deezer API clients with popular content examples.
 This script tests the TrackNameClient, ArtistNameClient, AlbumNameClient, and PlaylistNameClient
 with well-known artists, tracks, albums, and playlists on Deezer.
+
+Copyright (c) 2025 Lucien Laumont
+Licensed under the MIT License - see LICENSE file for details.
 """
 
 import asyncio
