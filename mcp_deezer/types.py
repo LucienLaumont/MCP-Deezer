@@ -123,34 +123,34 @@ class DeezerAlbumBase(BaseModel):
     """Base album object with common fields"""
     id: int
     title: str
-    link: HttpUrl
+    link: Optional[HttpUrl] = None
     cover: HttpUrl
     cover_small: HttpUrl
     cover_medium: HttpUrl
     cover_big: HttpUrl
     cover_xl: HttpUrl
     md5_image: str
-    release_date: date
+    release_date: Optional[date] = None
     tracklist: HttpUrl
     type: Literal["album"] = "album"
 
 
 class DeezerAlbum(DeezerAlbumBase):
     """Complete album object as returned by the Deezer API"""
-    upc: str
-    share: HttpUrl
+    upc: Optional[str] = None
+    share: Optional[HttpUrl] = None
     genre_id: int
     genres: list[DeezerGenre] = Field(
         default_factory=list,
         validation_alias=AliasPath("genres", "data"),
     )
-    label: str
+    label: Optional[str] = None
     nb_tracks: int
-    duration: int
-    fans: int
+    duration: Optional[int] = None
+    fans: Optional[int] = None
     rating: Optional[int] = None
     record_type: str
-    available: bool
+    available: Optional[bool] = None
     alternative: Optional["DeezerAlbum"] = None
     artist: DeezerTrackArtist
     tracks: list["DeezerTrackBase"] = Field(
@@ -196,14 +196,14 @@ class DeezerTrackBase(BaseModel):
 
 class DeezerTrack(DeezerTrackBase):
     """Complete track object as returned by the Deezer API"""
-    share: HttpUrl
-    release_date: date
-    bpm: float
-    gain: float
-    available_countries: List[str]
-    contributors: List[DeezerTrackContributor]
+    share: Optional[HttpUrl] = None
+    release_date: Optional[date] = None
+    bpm: Optional[float] = None
+    gain: Optional[float] = None
+    available_countries: Optional[List[str]] = None
+    contributors: Optional[List[DeezerTrackContributor]] = None
     md5_image: str
-    track_token: str
+    track_token: Optional[str] = None
     album: DeezerAlbumBase
 
 
@@ -221,14 +221,14 @@ class DeezerPlaylistBase(BaseModel):
     id: int
     title: str
     description: Optional[str] = None
-    duration: int
+    duration: Optional[int] = None
     public: bool
-    is_loved_track: bool
-    collaborative: bool
+    is_loved_track: Optional[bool] = None
+    collaborative: Optional[bool] = None
     nb_tracks: int
-    fans: int
+    fans: Optional[int] = None
     link: HttpUrl
-    share: HttpUrl
+    share: Optional[HttpUrl] = None
     picture: HttpUrl
     picture_small: HttpUrl
     picture_medium: HttpUrl
@@ -244,7 +244,7 @@ class DeezerPlaylistBase(BaseModel):
 
 class DeezerPlaylist(DeezerPlaylistBase):
     """Complete playlist object as returned by the Deezer API"""
-    creator: DeezerUser
+    creator: Optional["DeezerUser"] = None
     tracks: list["DeezerTrackBase"] = Field(
         default_factory=list,
         validation_alias=AliasPath("tracks", "data"),
