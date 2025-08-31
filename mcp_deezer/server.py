@@ -3,7 +3,7 @@
 MCP Server for Deezer API integration.
 Provides tools to search and retrieve information about tracks, artists, albums, and playlists from Deezer.
 
-Copyright (c) 2025 Lucien Laumont
+Copyright (c) 2015 Lucien Laumont
 Licensed under the MIT License - see LICENSE file for details.
 """
 
@@ -26,6 +26,7 @@ from .functions.deezer_client.track import TrackNameClient
 from .functions.deezer_client.artist import ArtistNameClient
 from .functions.deezer_client.album import AlbumNameClient
 from .functions.deezer_client.playlist import PlaylistNameClient
+from .functions.deezer_client.user import UserNameClient
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -39,6 +40,7 @@ track_client = TrackNameClient()
 artist_client = ArtistNameClient()
 album_client = AlbumNameClient()
 playlist_client = PlaylistNameClient()
+user_client = UserNameClient()
 
 
 @server.list_tools()
@@ -57,10 +59,10 @@ async def handle_list_tools() -> list[Tool]:
                     },
                     "limit": {
                         "type": "integer",
-                        "description": "Number of results to return (default: 10)",
-                        "default": 10,
+                        "description": "Number of results to return (default: 5)",
+                        "default": 5,
                         "minimum": 1,
-                        "maximum": 25
+                        "maximum": 15
                     },
                     "strict": {
                         "type": "boolean",
@@ -108,7 +110,7 @@ async def handle_list_tools() -> list[Tool]:
                         "description": "Number of results to return (default: 1)",
                         "default": 1,
                         "minimum": 1,
-                        "maximum": 25
+                        "maximum": 15
                     },
                     "order": {
                         "type": "string",
@@ -132,10 +134,10 @@ async def handle_list_tools() -> list[Tool]:
                     },
                     "limit": {
                         "type": "integer",
-                        "description": "Number of results to return (default: 10)",
-                        "default": 10,
+                        "description": "Number of results to return (default: 5)",
+                        "default": 5,
                         "minimum": 1,
-                        "maximum": 25
+                        "maximum": 15
                     },
                     "strict": {
                         "type": "boolean",
@@ -176,10 +178,10 @@ async def handle_list_tools() -> list[Tool]:
                     },
                     "limit": {
                         "type": "integer",
-                        "description": "Number of results to return (default: 10)",
-                        "default": 10,
+                        "description": "Number of results to return (default: 5)",
+                        "default": 5,
                         "minimum": 1,
-                        "maximum": 25
+                        "maximum": 15
                     },
                     "strict": {
                         "type": "boolean",
@@ -220,10 +222,10 @@ async def handle_list_tools() -> list[Tool]:
                     },
                     "limit": {
                         "type": "integer",
-                        "description": "Number of results to return (default: 10)",
-                        "default": 10,
+                        "description": "Number of results to return (default: 5)",
+                        "default": 5,
                         "minimum": 1,
-                        "maximum": 25
+                        "maximum": 15
                     },
                     "strict": {
                         "type": "boolean",
@@ -276,7 +278,7 @@ async def handle_list_tools() -> list[Tool]:
                         "description": "Number of results to return (default: 1)",
                         "default": 1,
                         "minimum": 1,
-                        "maximum": 25
+                        "maximum": 15
                     },
                     "order": {
                         "type": "string",
@@ -286,6 +288,50 @@ async def handle_list_tools() -> list[Tool]:
                     }
                 },
                 "required": ["playlist_name", "creator_name"]
+            }
+        ),
+        Tool(
+            name="search_user",
+            description="Search for users by name on Deezer with optional parameters",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "user_name": {
+                        "type": "string",
+                        "description": "The name of the user to search for"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Number of results to return (default: 5)",
+                        "default": 5,
+                        "minimum": 1,
+                        "maximum": 15
+                    },
+                    "strict": {
+                        "type": "boolean",
+                        "description": "If true, disable fuzzy mode for exact matches only (optional)"
+                    },
+                    "order": {
+                        "type": "string",
+                        "description": "Sort order: RANKING, TRACK_ASC, TRACK_DESC, ARTIST_ASC, ARTIST_DESC, ALBUM_ASC, ALBUM_DESC, RATING_ASC, RATING_DESC, DURATION_ASC, DURATION_DESC (optional)",
+                        "enum": ["RANKING", "TRACK_ASC", "TRACK_DESC", "ARTIST_ASC", "ARTIST_DESC", "ALBUM_ASC", "ALBUM_DESC", "RATING_ASC", "RATING_DESC", "DURATION_ASC", "DURATION_DESC"]
+                    }
+                },
+                "required": ["user_name"]
+            }
+        ),
+        Tool(
+            name="get_user",
+            description="Get a user by their Deezer ID",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "integer",
+                        "description": "The Deezer user ID"
+                    }
+                },
+                "required": ["user_id"]
             }
         )
     ]
@@ -300,7 +346,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
     try:
         if name == "search_track":
             track_name = arguments.get("track_name")
-            limit = arguments.get("limit", 10)
+            limit = arguments.get("limit", 5)
             strict = arguments.get("strict")
             order = arguments.get("order")
             
@@ -360,7 +406,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
 
         elif name == "search_artist":
             artist_name = arguments.get("artist_name")
-            limit = arguments.get("limit", 10)
+            limit = arguments.get("limit", 5)
             strict = arguments.get("strict")
             order = arguments.get("order")
             
@@ -396,7 +442,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
 
         elif name == "search_album":
             album_name = arguments.get("album_name")
-            limit = arguments.get("limit", 10)
+            limit = arguments.get("limit", 5)
             strict = arguments.get("strict")
             order = arguments.get("order")
             
@@ -433,7 +479,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
 
         elif name == "search_playlist":
             playlist_name = arguments.get("playlist_name")
-            limit = arguments.get("limit", 10)
+            limit = arguments.get("limit", 5)
             strict = arguments.get("strict")
             order = arguments.get("order")
             public_only = arguments.get("public_only", False)
@@ -518,6 +564,58 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
                     )]
             else:
                 return [TextContent(type="text", text=f"❌ No playlist found for '{playlist_name}' by '{creator_name}'")]
+
+        elif name == "search_user":
+            user_name = arguments.get("user_name")
+            limit = arguments.get("limit", 5)
+            strict = arguments.get("strict")
+            order = arguments.get("order")
+            
+            results = await user_client.search_users_by_name(user_name, limit=limit, strict=strict, order=order)
+            if results:
+                users_text = f"👤 **{len(results)} Users Found for '{user_name}'**\n\n"
+                for i, user in enumerate(results, 1):
+                    users_text += f"**{i}.** {user.name}\n"
+                    users_text += f"   ID: {user.id}\n"
+                    if user.country:
+                        users_text += f"   Country: {user.country}\n"
+                    users_text += f"   Link: {user.link}\n\n"
+                return [TextContent(type="text", text=users_text)]
+            else:
+                return [TextContent(type="text", text=f"❌ No users found for '{user_name}'")]
+        
+        elif name == "get_user":
+            user_id = arguments.get("user_id")
+            result = await user_client.get_user(user_id)
+            if result:
+                user_info = f"👤 **User Found**\n\n"
+                user_info += f"**ID:** {result.id}\n"
+                user_info += f"**Name:** {result.name}\n"
+                
+                if result.firstname and result.lastname:
+                    user_info += f"**Full Name:** {result.firstname} {result.lastname}\n"
+                elif result.firstname:
+                    user_info += f"**First Name:** {result.firstname}\n"
+                elif result.lastname:
+                    user_info += f"**Last Name:** {result.lastname}\n"
+                
+                if result.country:
+                    user_info += f"**Country:** {result.country}\n"
+                if result.inscription_date:
+                    user_info += f"**Member Since:** {result.inscription_date}\n"
+                if result.lang:
+                    user_info += f"**Language:** {result.lang}\n"
+                
+                user_info += f"**Link:** {result.link}\n"
+                
+                if result.picture_medium:
+                    user_info += f"**Picture:** {result.picture_medium}"
+                else:
+                    user_info += f"**Picture:** N/A"
+                
+                return [TextContent(type="text", text=user_info)]
+            else:
+                return [TextContent(type="text", text=f"❌ No user found with ID {user_id}")]
 
         else:
             return [TextContent(type="text", text=f"❌ Unknown tool: {name}")]
