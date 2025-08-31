@@ -475,9 +475,6 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
                          f"**ID:** {result.id}\n"
                          f"**Title:** {result.title}\n"
                          f"**Artist:** {result.artist.name}\n"
-                         f"**Tracks:** {result.nb_tracks}\n"
-                         f"**Duration:** {result.duration}s\n"
-                         f"**Release Date:** {result.release_date}\n"
                          f"**Link:** {result.link}\n"
                          f"**Cover:** {result.cover_medium or 'N/A'}"
                 )]
@@ -517,15 +514,16 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
             result = await playlist_client.get_playlist(playlist_id, tracks_limit=tracks_limit)
             if result:
                 creator_name = result.creator.name if result.creator else "Unknown"
+                fans_text = f"**Fans:** {result.fans:,}\n" if result.fans is not None else "**Fans:** N/A\n"
                 return [TextContent(
                     type="text",
                     text=f"🎼 **Playlist Found**\n\n"
                          f"**ID:** {result.id}\n"
                          f"**Title:** {result.title}\n"
                          f"**Creator:** {creator_name}\n"
-                         f"**Tracks:** {result.nb_tracks}\n"
+                         f"**Number of Tracks:** {result.nb_tracks}\n"
                          f"**Duration:** {result.duration}s\n"
-                         f"**Fans:** {result.fans:,}\n" if result.fans is not None else "**Fans:** N/A\n"
+                         f"{fans_text}"
                          f"**Public:** {'Yes' if result.public else 'No'}\n"
                          f"**Link:** {result.link}\n"
                          f"**Picture:** {result.picture_medium or 'N/A'}"

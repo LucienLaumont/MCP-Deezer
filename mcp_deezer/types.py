@@ -313,7 +313,6 @@ class DeezerPlaylist(DeezerPlaylistBase):
     """
     description: str
     duration: int
-    public: bool
     is_loved_track: bool
     collaborative: bool
     fans: int
