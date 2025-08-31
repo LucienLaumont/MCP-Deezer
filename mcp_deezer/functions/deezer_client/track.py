@@ -91,8 +91,8 @@ class TrackNameClient(BaseDeezerClient):
             Optional[DeezerTrack]: The best matching track or None if not found
         """
         try:
-            # Build combined search query
-            search_query = f'track:"{track_name}" artist:"{artist_name}"'
+            # Build combined search query - simple format works better
+            search_query = f"{track_name} {artist_name}"
             
             search_params = {
                 "q": search_query,
