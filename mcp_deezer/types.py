@@ -3,7 +3,7 @@ Unified Pydantic types for Deezer API
 Documentation: https://developers.deezer.com/api/
 """
 
-from pydantic import BaseModel, HttpUrl, Field, AliasPath
+from pydantic import BaseModel, HttpUrl, field_validator
 from typing import List, Literal, Optional, Union
 from datetime import date, datetime
 
@@ -13,14 +13,14 @@ from datetime import date, datetime
 # ============================================================================
 
 class DeezerGenre(BaseModel):
+    """Deezer genre data model.
+    
+    Represents a music genre from the Deezer API.
+    """
     id: int
     name: str
     picture: Optional[HttpUrl] = None
-    picture_small: Optional[HttpUrl] = None
-    picture_medium: Optional[HttpUrl] = None
-    picture_big: Optional[HttpUrl] = None
-    picture_xl: Optional[HttpUrl] = None
-    type: Optional[Literal["genre"]] = None
+    type: Literal["genre"] = None
 
 
 class DeezerGenreListResponse(BaseModel):
@@ -33,33 +33,37 @@ class DeezerGenreListResponse(BaseModel):
 # ============================================================================
 
 class DeezerUserBase(BaseModel):
-    """Base user object with common fields"""
+    """Base user object with common fields.
+    
+    Contains the essential fields shared across different user contexts in the Deezer API.
+    """
     id: int
     name: str
-    link: Optional[HttpUrl] = None
+    tracklist: HttpUrl
+    type: Literal["user"] = "user"
+
+class DeezerUserSearch(DeezerUserBase):
+    """User object as returned in search contexts.
+    
+    Extends DeezerUserBase with additional picture fields for search results.
+    """
     picture: Optional[HttpUrl] = None
     picture_small: Optional[HttpUrl] = None
     picture_medium: Optional[HttpUrl] = None
     picture_big: Optional[HttpUrl] = None
     picture_xl: Optional[HttpUrl] = None
-    type: Literal["user"] = "user"
-
 
 class DeezerUser(DeezerUserBase):
-    """Complete user object as returned by the Deezer API"""
-    lastname: Optional[str] = None
-    firstname: Optional[str] = None
-    email: Optional[str] = None
-    status: Optional[int] = None
-    birthday: Optional[date] = None
-    inscription_date: Optional[date] = None
-    gender: Optional[str] = None
-    country: Optional[str] = None
-    lang: Optional[str] = None
-    is_kid: Optional[bool] = None
-    explicit_content_level: Optional[str] = None
-    explicit_content_levels_available: Optional[List[str]] = []
-    tracklist: HttpUrl
+    """Complete user object as returned by the Deezer API.
+    
+    Contains all available user information including profile pictures and country data.
+    """
+    picture: Optional[HttpUrl] = None
+    picture_small: Optional[HttpUrl] = None
+    picture_medium: Optional[HttpUrl] = None
+    picture_big: Optional[HttpUrl] = None
+    picture_xl: Optional[HttpUrl] = None
+    country: str
 
 
 class DeezerUserListResponse(BaseModel):
@@ -72,47 +76,61 @@ class DeezerUserListResponse(BaseModel):
 # ============================================================================
 
 class DeezerArtistBase(BaseModel):
-    """Base artist object with common fields"""
+    """Base artist object with common fields.
+    
+    Contains the essential fields shared across different artist contexts in the Deezer API.
+    """
     id: int
     name: str
-    link: Optional[HttpUrl] = None
-    share: Optional[HttpUrl] = None
+    link: HttpUrl
     picture: Optional[HttpUrl] = None
     picture_small: Optional[HttpUrl] = None
     picture_medium: Optional[HttpUrl] = None
     picture_big: Optional[HttpUrl] = None
     picture_xl: Optional[HttpUrl] = None
-    radio: Optional[bool] = None
-    tracklist: Optional[HttpUrl] = None
-    type: Optional[Literal["artist"]] = None
+    tracklist: HttpUrl
+    type: Literal["artist"]
 
+
+class DeezerArtistSearch(DeezerArtistBase):
+    """Artist object as returned in search contexts.
+    
+    Includes additional metadata like album count, fan count, and radio availability.
+    """
+    nb_album : int
+    nb_fan : int
+    radio: bool
+
+class DeezerArtistContributors(DeezerArtistBase):
+    """Artist object when appearing as a track contributor.
+    
+    Includes share URL, radio availability, and the artist's role in the track.
+    """
+    share : HttpUrl
+    radio: bool
+    role : str
+
+class DeezerArtistTrack(DeezerArtistBase):
+    """Artist object as it appears in track contexts.
+    
+    Simplified artist representation with share URL and radio availability.
+    """
+    share : HttpUrl
+    radio : bool
 
 class DeezerArtist(DeezerArtistBase):
-    """Complete artist object as returned by the Deezer API"""
-    link: HttpUrl
-    share: Optional[HttpUrl] = None
-    picture: HttpUrl
-    picture_small: HttpUrl
-    picture_medium: HttpUrl
-    picture_big: HttpUrl
-    picture_xl: HttpUrl
+    """Complete artist object with full metadata.
+    
+    Contains all available artist information including statistics and sharing options.
+    """
+    share : HttpUrl
+    nb_album : int
+    nb_fan : int
     radio: bool
-    tracklist: HttpUrl
-    type: Literal["artist"] = "artist"
-
-    nb_album: int
-    nb_fan: int
-
-
-
-class DeezerTrackArtist(DeezerArtistBase):
-    """Artist object in track/album context (simplified)"""
-    pass
-
 
 class DeezerArtistListResponse(BaseModel):
     """Response from artist list endpoints"""
-    data: List[DeezerArtist]
+    data: List[DeezerArtistBase]
 
 
 # ============================================================================
@@ -120,44 +138,60 @@ class DeezerArtistListResponse(BaseModel):
 # ============================================================================
 
 class DeezerAlbumBase(BaseModel):
-    """Base album object with common fields"""
+    """Base album object with common fields.
+    
+    Contains the essential fields shared across different album contexts in the Deezer API.
+    """
     id: int
     title: str
-    link: Optional[HttpUrl] = None
-    cover: HttpUrl
-    cover_small: HttpUrl
-    cover_medium: HttpUrl
-    cover_big: HttpUrl
-    cover_xl: HttpUrl
+    cover: str
+    cover_small: Optional[HttpUrl] = None
+    cover_medium: Optional[HttpUrl] = None
+    cover_big: Optional[HttpUrl] = None
+    cover_xl: Optional[HttpUrl] = None
     md5_image: str
-    release_date: Optional[date] = None
     tracklist: HttpUrl
     type: Literal["album"] = "album"
 
 
-class DeezerAlbum(DeezerAlbumBase):
-    """Complete album object as returned by the Deezer API"""
-    upc: Optional[str] = None
-    share: Optional[HttpUrl] = None
+class DeezerAlbumSearch(DeezerAlbumBase):
+    """Album object as returned in search contexts.
+    
+    Includes additional metadata like genre, track count, and artist information.
+    """
+    link: HttpUrl
     genre_id: int
-    genres: list[DeezerGenre] = Field(
-        default_factory=list,
-        validation_alias=AliasPath("genres", "data"),
-    )
-    label: Optional[str] = None
     nb_tracks: int
-    duration: Optional[int] = None
-    fans: Optional[int] = None
-    rating: Optional[int] = None
     record_type: str
-    available: Optional[bool] = None
-    alternative: Optional["DeezerAlbum"] = None
-    artist: DeezerTrackArtist
-    tracks: list["DeezerTrackBase"] = Field(
-        default_factory=list,
-        validation_alias=AliasPath("tracks", "data"),
-    )
+    explicit_lyrics : bool
+    artist: DeezerArtist
 
+class DeezerAlbumTrack(DeezerAlbumBase):
+    """Album object as it appears in track contexts.
+    
+    Simplified album representation with link and release date.
+    """
+    link : HttpUrl
+    release_date : datetime
+
+class DeezerAlbum(DeezerAlbumBase):
+    """Complete album object with full metadata.
+    
+    Contains all available album information including UPC, genres, and artist data.
+    """
+    upc : str
+    link: HttpUrl
+    share : HttpUrl
+    genre_id: int
+    genres: List[DeezerGenre]  # Direct list after extraction
+    artist: DeezerArtist
+
+    @field_validator('genres', mode='before')
+    @classmethod
+    def extract_genres_data(cls, v):
+        if isinstance(v, dict) and 'data' in v:
+            return v['data']
+        return v
 
 class DeezerAlbumListResponse(BaseModel):
     """Response from album list endpoints"""
@@ -168,48 +202,65 @@ class DeezerAlbumListResponse(BaseModel):
 # TRACK TYPES
 # ============================================================================
 
-class DeezerTrackContributor(DeezerTrackArtist):
-    """Contributor object in track context (extends artist with role)"""
-    role: str
-
-
 class DeezerTrackBase(BaseModel):
-    """Base track object with common fields"""
+    """Base track object with common fields.
+    
+    Contains the essential fields shared across different track contexts in the Deezer API.
+    """
     id: int
     readable: bool
     title: str
     title_short: str
-    title_version: Optional[str] = None
-    isrc: Optional[str] = None
+    title_version: str
     link: HttpUrl
-    duration: int
-    track_position: Optional[int] = None
-    disk_number: Optional[int] = None
     rank: int
     explicit_lyrics: bool
     explicit_content_lyrics: int
     explicit_content_cover: int
-    preview: str
-    artist: DeezerTrackArtist
+    preview: HttpUrl
+    md5_image : str
     type: Literal["track"] = "track"
 
+class DeezerTrackSearch(DeezerTrackBase):
+    """Track object as returned in search contexts.
+    
+    Includes basic artist and album information for search results.
+    """
+    artist: DeezerArtistBase
+    album : DeezerAlbumBase
+
+class DeezerTrackPlaylist(DeezerTrackBase):
+    """Track object as it appears in playlist contexts.
+    
+    Includes ISRC code, addition timestamp, and basic artist/album info.
+    """
+    isrc : str
+    time_add : int
+    artist: DeezerArtistBase
+    album : DeezerAlbumBase
 
 class DeezerTrack(DeezerTrackBase):
-    """Complete track object as returned by the Deezer API"""
-    share: Optional[HttpUrl] = None
-    release_date: Optional[date] = None
-    bpm: Optional[float] = None
-    gain: Optional[float] = None
-    available_countries: Optional[List[str]] = None
-    contributors: Optional[List[DeezerTrackContributor]] = None
-    md5_image: str
-    track_token: Optional[str] = None
-    album: DeezerAlbumBase
+    """Complete track object with full metadata.
+    
+    Contains all available track information including technical details, contributors, and availability.
+    """
+    isrc : str
+    share : HttpUrl
+    duration : str
+    track_position : int
+    disk_number : int
+    release_date : datetime
+    bpm : int
+    gain : str
+    available_countries : List[str]
+    contributors : List[DeezerArtistContributors]
+    artist : DeezerArtistTrack
+    album : DeezerAlbumTrack
 
 
 class DeezerTrackListResponse(BaseModel):
     """Response from track list endpoints"""
-    data: List[DeezerTrack]
+    data: List[DeezerTrackBase]
 
 
 # ============================================================================
@@ -217,50 +268,56 @@ class DeezerTrackListResponse(BaseModel):
 # ============================================================================
 
 class DeezerPlaylistBase(BaseModel):
-    """Base playlist object with common fields"""
+    """Base playlist object with common fields.
+    
+    Contains the essential fields shared across different playlist contexts in the Deezer API.
+    """
     id: int
     title: str
-    description: Optional[str] = None
-    duration: Optional[int] = None
     public: bool
-    is_loved_track: Optional[bool] = None
-    collaborative: Optional[bool] = None
     nb_tracks: int
-    fans: Optional[int] = None
     link: HttpUrl
-    share: Optional[HttpUrl] = None
-    picture: HttpUrl
-    picture_small: HttpUrl
-    picture_medium: HttpUrl
-    picture_big: HttpUrl
-    picture_xl: HttpUrl
+    picture : Optional[HttpUrl] = None
+    picture_small: Optional[HttpUrl] = None
+    picture_medium: Optional[HttpUrl] = None
+    picture_big: Optional[HttpUrl] = None
+    picture_xl: Optional[HttpUrl] = None
     checksum: str
     tracklist: HttpUrl
     creation_date: datetime
+    add_date : Optional[datetime] = None
+    mod_date : Optional[datetime] = None
     md5_image: str
     picture_type: str
+    user: DeezerUserBase
     type: Literal["playlist"] = "playlist"
 
-
 class DeezerPlaylist(DeezerPlaylistBase):
-    """Complete playlist object as returned by the Deezer API"""
-    creator: Optional["DeezerUser"] = None
-    tracks: list["DeezerTrackBase"] = Field(
-        default_factory=list,
-        validation_alias=AliasPath("tracks", "data"),
-    )
+    """Complete playlist object with full metadata and track list.
+    
+    Contains all available playlist information including description, collaboration settings, and tracks.
+    """
+    description: str
+    duration: str
+    public: bool
+    is_loved_track: bool
+    collaborative: bool
+    fans: int
+    share: HttpUrl
+    creation_date: datetime
+    add_date: Optional[datetime] = None
+    mod_date: Optional[datetime] = None
+    tracks: List[DeezerTrackPlaylist]
+    
+    @field_validator('tracks', mode='before')
+    @classmethod
+    def extract_tracks_data(cls, v):
+        """Extract tracks from data container if necessary."""
+        if isinstance(v, dict) and 'data' in v:
+            return v['data']
+        return v
 
 
-class DeezerPlaylistListResponse(BaseModel):
-    """Response from playlist list endpoints"""
-    data: List[DeezerPlaylist]
-
-
-class DeezerPlaylistTracksResponse(BaseModel):
-    """Response from playlist tracks endpoint"""
-    data: List[DeezerTrackBase]
-    total: Optional[int] = None
-    next: Optional[str] = None
 
 DeezerAlbum.model_rebuild()
 DeezerTrack.model_rebuild()
