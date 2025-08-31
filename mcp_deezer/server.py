@@ -311,7 +311,6 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
                     tracks_text += f"**{i}.** {track.title} by {track.artist.name}\n"
                     tracks_text += f"   ID: {track.id}\n"
                     tracks_text += f"   Album: {track.album.title}\n"
-                    tracks_text += f"   Duration: {track.duration}s\n"
                     tracks_text += f"   Link: {track.link}\n\n"
                 return [TextContent(type="text", text=tracks_text)]
             else:
@@ -408,7 +407,6 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
                     albums_text += f"**{i}.** {album.title} by {album.artist.name}\n"
                     albums_text += f"   ID: {album.id}\n"
                     albums_text += f"   Tracks: {album.nb_tracks}\n"
-                    albums_text += f"   Release Date: {album.release_date}\n"
                     albums_text += f"   Link: {album.link}\n\n"
                 return [TextContent(type="text", text=albums_text)]
             else:
@@ -449,11 +447,10 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
                 playlist_type = "Public Playlists" if public_only else "Playlists"
                 playlists_text = f"🎼 **{len(results)} {playlist_type} Found for '{playlist_name}'**\n\n"
                 for i, playlist in enumerate(results, 1):
-                    creator_name = playlist.creator.name if playlist.creator else "Unknown"
+                    creator_name = playlist.user.name if playlist.user else "Unknown"
                     playlists_text += f"**{i}.** {playlist.title} by {creator_name}\n"
                     playlists_text += f"   ID: {playlist.id}\n"
                     playlists_text += f"   Tracks: {playlist.nb_tracks}\n"
-                    playlists_text += f"   Fans: {playlist.fans:,}\n" if playlist.fans is not None else "   Fans: N/A\n"
                     playlists_text += f"   Public: {'Yes' if playlist.public else 'No'}\n"
                     playlists_text += f"   Link: {playlist.link}\n\n"
                 return [TextContent(type="text", text=playlists_text)]
@@ -490,19 +487,35 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
             
             result = await playlist_client.get_playlist_by_name_and_creator(playlist_name, creator_name, limit=limit, order=order)
             if result:
-                return [TextContent(
-                    type="text",
-                    text=f"🎼 **Playlist Found**\n\n"
-                         f"**ID:** {result.id}\n"
-                         f"**Title:** {result.title}\n"
-                         f"**Creator:** {result.creator.name if result.creator else 'Unknown'}\n"
-                         f"**Tracks:** {result.nb_tracks}\n"
-                         f"**Duration:** {result.duration}s\n"
-                         f"**Fans:** {result.fans:,}\n" if result.fans is not None else "**Fans:** N/A\n"
-                         f"**Public:** {'Yes' if result.public else 'No'}\n"
-                         f"**Link:** {result.link}\n"
-                         f"**Picture:** {result.picture_medium or 'N/A'}"
-                )]
+                # Get full playlist details using the ID to access all fields like fans, duration, etc.
+                full_playlist = await playlist_client.get_playlist(result.id)
+                if full_playlist:
+                    return [TextContent(
+                        type="text",
+                        text=f"🎼 **Playlist Found**\n\n"
+                             f"**ID:** {full_playlist.id}\n"
+                             f"**Title:** {full_playlist.title}\n"
+                             f"**Creator:** {full_playlist.creator.name if full_playlist.creator else 'Unknown'}\n"
+                             f"**Tracks:** {full_playlist.nb_tracks}\n"
+                             f"**Duration:** {full_playlist.duration}s\n"
+                             f"**Fans:** {full_playlist.fans:,}\n"
+                             f"**Public:** {'Yes' if full_playlist.public else 'No'}\n"
+                             f"**Link:** {full_playlist.link}\n"
+                             f"**Picture:** {full_playlist.picture_medium or 'N/A'}"
+                    )]
+                else:
+                    # Fallback to basic info if full details failed
+                    return [TextContent(
+                        type="text",
+                        text=f"🎼 **Playlist Found**\n\n"
+                             f"**ID:** {result.id}\n"
+                             f"**Title:** {result.title}\n"
+                             f"**Creator:** {result.user.name if result.user else 'Unknown'}\n"
+                             f"**Tracks:** {result.nb_tracks}\n"
+                             f"**Public:** {'Yes' if result.public else 'No'}\n"
+                             f"**Link:** {result.link}\n"
+                             f"**Picture:** {result.picture_medium or 'N/A'}"
+                    )]
             else:
                 return [TextContent(type="text", text=f"❌ No playlist found for '{playlist_name}' by '{creator_name}'")]
 

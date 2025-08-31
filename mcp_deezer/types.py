@@ -313,6 +313,7 @@ class DeezerPlaylist(DeezerPlaylistBase):
     add_date: Optional[datetime] = None
     mod_date: Optional[datetime] = None
     tracks: List[DeezerTrackPlaylist]
+    creator : DeezerUserBase
     
     @field_validator('tracks', mode='before')
     @classmethod
