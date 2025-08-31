@@ -1,104 +1,70 @@
 from mcp_deezer.functions.deezer_client.base import BaseDeezerClient
-from mcp_deezer.types import DeezerPlaylist
+from mcp_deezer.types import DeezerPlaylist, DeezerPlaylistBase
 from typing import Optional, List
 
 
 class PlaylistNameClient(BaseDeezerClient):
-    """Client to retrieve playlists by their name."""
+    """Client to retrieve playlists by their name and ID."""
 
-    async def get_playlist_by_name(
-        self, 
-        playlist_name: str, 
-        limit: int = 1,
-        strict: bool = True,
-        order: str = "PLAYLIST_ASC"
-    ) -> Optional[DeezerPlaylist]:
+
+    async def get_playlist(self, playlist_id: int) -> Optional[DeezerPlaylist]:
         """
-        Retrieve a playlist using the Deezer search endpoint with enhanced parameters.
-        This method uses Deezer's search functionality for reliable results optimized for MCP tools.
+        Retrieve a complete playlist by its ID.
 
         Args:
-            playlist_name (str): The playlist name to search for
-            limit (int, optional): Number of results to return. Defaults to 1 for single result.
-            strict (bool, optional): If True, use exact match search. If False, use fuzzy search. Defaults to True.
-            order (str, optional): Sort order for results. Options: PLAYLIST_ASC, PLAYLIST_DESC, ARTIST_ASC, 
-                                 ARTIST_DESC, ALBUM_ASC, ALBUM_DESC, TRACK_ASC, TRACK_DESC, 
-                                 DURATION_ASC, DURATION_DESC, RANKING. Defaults to "PLAYLIST_ASC".
+            playlist_id (int): The Deezer playlist ID
 
         Returns:
-            Optional[DeezerPlaylist]: The best matching playlist or None if not found
+            Optional[DeezerPlaylist]: The complete playlist data or None if not found
         """
         try:
-            # Build search query based on strict parameter
-            if strict:
-                search_query = f'playlist:"{playlist_name}"'
-            else:
-                search_query = playlist_name
-            
-            # Prepare search parameters
-            search_params = {
-                "q": search_query,
-                "limit": limit,
-                "order": order
-            }
-            
-            # Search using the search endpoint
-            search_response = await self._get("search/playlist", params=search_params)
-            
-            if not search_response.get("data"):
-                # If strict search fails, try fuzzy search
-                if strict:
-                    return await self.get_playlist_by_name(
-                        playlist_name=playlist_name,
-                        limit=limit,
-                        strict=False,
-                        order=order
-                    )
-                return None
-                
-            # Get the best match (first result)
-            best_match = search_response["data"][0]
-            playlist_id = best_match["id"]
-            
-            # For MCP tools, we want complete data, so fetch full details
             playlist_response = await self._get(f"playlist/{playlist_id}")
             return DeezerPlaylist(**playlist_response)
             
         except Exception as e:
-            print(f"Error searching for playlist '{playlist_name}': {e}")
+            print(f"Error retrieving playlist with ID {playlist_id}: {e}")
             return None
 
     async def search_playlists_by_name(
         self, 
         playlist_name: str, 
         limit: int = 10,
-        order: str = "RANKING"
-    ) -> List[DeezerPlaylist]:
+        strict: Optional[bool] = None,
+        order: Optional[str] = None
+    ) -> List[DeezerPlaylistBase]:
         """
         Search for multiple playlists by name - useful for MCP tools that need multiple options.
 
         Args:
             playlist_name (str): The playlist name to search for
             limit (int, optional): Maximum number of results to return. Defaults to 10.
-            order (str, optional): Sort order for results. Defaults to "RANKING" for best matches first.
+            strict (bool, optional): If True, disable fuzzy mode. If None, uses default API behavior.
+            order (str, optional): Sort order. Options: RANKING, TRACK_ASC, TRACK_DESC, ARTIST_ASC, 
+                                 ARTIST_DESC, ALBUM_ASC, ALBUM_DESC, RATING_ASC, RATING_DESC, 
+                                 DURATION_ASC, DURATION_DESC. If None, uses default API behavior.
 
         Returns:
-            List[DeezerPlaylist]: List of matching playlists, empty list if none found
+            List[DeezerPlaylistBase]: List of matching playlists, empty list if none found
         """
         try:
             search_params = {
                 "q": playlist_name,
-                "limit": limit,
-                "order": order
+                "limit": limit
             }
+            
+            # Add optional parameters if provided
+            if strict is not None:
+                search_params["strict"] = "on" if strict else "off"
+            if order is not None:
+                search_params["order"] = order
             
             search_response = await self._get("search/playlist", params=search_params)
             
             if not search_response.get("data"):
                 return []
                 
-            # Return list of playlists from search results (these already have most needed data)
-            return [DeezerPlaylist(**item) for item in search_response["data"]]
+            # Return list of playlists from search results using DeezerPlaylistBase type
+            return [DeezerPlaylistBase(**item) for item in search_response["data"]]
             
         except Exception as e:
             print(f"Error searching for playlists '{playlist_name}': {e}")
@@ -155,8 +121,9 @@ class PlaylistNameClient(BaseDeezerClient):
         self, 
         playlist_name: str, 
         limit: int = 10,
-        order: str = "RANKING"
-    ) -> List[DeezerPlaylist]:
+        strict: Optional[bool] = None,
+        order: Optional[str] = None
+    ) -> List[DeezerPlaylistBase]:
         """
         Search specifically for public playlists by name.
         This is useful for MCP tools focusing on discoverable/shareable playlists.
@@ -164,18 +131,26 @@ class PlaylistNameClient(BaseDeezerClient):
         Args:
             playlist_name (str): The playlist name to search for
             limit (int, optional): Maximum number of results to return. Defaults to 10.
-            order (str, optional): Sort order for results. Defaults to "RANKING".
+            strict (bool, optional): If True, disable fuzzy mode. If None, uses default API behavior.
+            order (str, optional): Sort order. Options: RANKING, TRACK_ASC, TRACK_DESC, ARTIST_ASC, 
+                                 ARTIST_DESC, ALBUM_ASC, ALBUM_DESC, RATING_ASC, RATING_DESC, 
+                                 DURATION_ASC, DURATION_DESC. If None, uses default API behavior.
 
         Returns:
-            List[DeezerPlaylist]: List of public playlists, empty list if none found
+            List[DeezerPlaylistBase]: List of public playlists, empty list if none found
         """
         try:
             # Search for playlists and filter for public ones
             search_params = {
                 "q": playlist_name,
-                "limit": limit * 2,  # Get more results to filter
-                "order": order
+                "limit": limit * 2  # Get more results to filter
             }
+            
+            # Add optional parameters if provided
+            if strict is not None:
+                search_params["strict"] = "on" if strict else "off"
+            if order is not None:
+                search_params["order"] = order
             
             search_response = await self._get("search/playlist", params=search_params)
             
@@ -186,7 +161,7 @@ class PlaylistNameClient(BaseDeezerClient):
             public_playlists = []
             for item in search_response["data"]:
                 if item.get("public", False) and len(public_playlists) < limit:
-                    public_playlists.append(DeezerPlaylist(**item))
+                    public_playlists.append(DeezerPlaylistBase(**item))
                     
             return public_playlists
             
