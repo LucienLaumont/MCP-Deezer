@@ -1,5 +1,5 @@
 from mcp_deezer.functions.deezer_client.base import BaseDeezerClient
-from mcp_deezer.types import DeezerPlaylist, DeezerPlaylistBase
+from mcp_deezer.types import DeezerPlaylist, DeezerPlaylistSearch
 from typing import Optional, List
 
 
@@ -31,7 +31,7 @@ class PlaylistNameClient(BaseDeezerClient):
         limit: int = 10,
         strict: Optional[bool] = None,
         order: Optional[str] = None
-    ) -> List[DeezerPlaylistBase]:
+    ) -> List[DeezerPlaylistSearch]:
         """
         Search for multiple playlists by name - useful for MCP tools that need multiple options.
 
@@ -44,7 +44,7 @@ class PlaylistNameClient(BaseDeezerClient):
                                  DURATION_ASC, DURATION_DESC. If None, uses default API behavior.
 
         Returns:
-            List[DeezerPlaylistBase]: List of matching playlists, empty list if none found
+            List[DeezerPlaylistSearch]: List of matching playlists, empty list if none found
         """
         try:
             search_params = {
@@ -64,7 +64,7 @@ class PlaylistNameClient(BaseDeezerClient):
                 return []
                 
             # Return list of playlists from search results using DeezerPlaylistBase type
-            return [DeezerPlaylistBase(**item) for item in search_response["data"]]
+            return [DeezerPlaylistSearch(**item) for item in search_response["data"]]
             
         except Exception as e:
             print(f"Error searching for playlists '{playlist_name}': {e}")
@@ -76,7 +76,7 @@ class PlaylistNameClient(BaseDeezerClient):
         creator_name: str,
         limit: int = 1,
         order: str = "RANKING"
-    ) -> Optional[DeezerPlaylist]:
+    ) -> Optional[DeezerPlaylistSearch]:
         """
         Retrieve a playlist by combining playlist name and creator name for more precise results.
         This is particularly useful for MCP tools when you know the playlist creator.
@@ -88,7 +88,7 @@ class PlaylistNameClient(BaseDeezerClient):
             order (str, optional): Sort order for results. Defaults to "RANKING".
 
         Returns:
-            Optional[DeezerPlaylist]: The best matching playlist or None if not found
+            Optional[DeezerPlaylistSearch]: The best matching playlist or None if not found
         """
         try:
             # Build combined search query
@@ -111,7 +111,7 @@ class PlaylistNameClient(BaseDeezerClient):
             
             # Fetch complete playlist details
             playlist_response = await self._get(f"playlist/{playlist_id}")
-            return DeezerPlaylist(**playlist_response)
+            return DeezerPlaylistSearch(**playlist_response)
             
         except Exception as e:
             print(f"Error searching for playlist '{playlist_name}' by creator '{creator_name}': {e}")
@@ -123,7 +123,7 @@ class PlaylistNameClient(BaseDeezerClient):
         limit: int = 10,
         strict: Optional[bool] = None,
         order: Optional[str] = None
-    ) -> List[DeezerPlaylistBase]:
+    ) -> List[DeezerPlaylistSearch]:
         """
         Search specifically for public playlists by name.
         This is useful for MCP tools focusing on discoverable/shareable playlists.
@@ -137,7 +137,7 @@ class PlaylistNameClient(BaseDeezerClient):
                                  DURATION_ASC, DURATION_DESC. If None, uses default API behavior.
 
         Returns:
-            List[DeezerPlaylistBase]: List of public playlists, empty list if none found
+            List[DeezerPlaylistSearch]: List of public playlists, empty list if none found
         """
         try:
             # Search for playlists and filter for public ones
@@ -161,7 +161,7 @@ class PlaylistNameClient(BaseDeezerClient):
             public_playlists = []
             for item in search_response["data"]:
                 if item.get("public", False) and len(public_playlists) < limit:
-                    public_playlists.append(DeezerPlaylistBase(**item))
+                    public_playlists.append(DeezerPlaylistSearch(**item))
                     
             return public_playlists
             

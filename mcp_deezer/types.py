@@ -39,7 +39,7 @@ class DeezerUserBase(BaseModel):
     """
     id: int
     name: str
-    tracklist: HttpUrl
+    tracklist: str
     type: Literal["user"] = "user"
 
 class DeezerUserSearch(DeezerUserBase):
@@ -82,13 +82,12 @@ class DeezerArtistBase(BaseModel):
     """
     id: int
     name: str
-    link: HttpUrl
     picture: Optional[HttpUrl] = None
     picture_small: Optional[HttpUrl] = None
     picture_medium: Optional[HttpUrl] = None
     picture_big: Optional[HttpUrl] = None
     picture_xl: Optional[HttpUrl] = None
-    tracklist: HttpUrl
+    tracklist: str
     type: Literal["artist"]
 
 
@@ -97,6 +96,7 @@ class DeezerArtistSearch(DeezerArtistBase):
     
     Includes additional metadata like album count, fan count, and radio availability.
     """
+    link: HttpUrl
     nb_album : int
     nb_fan : int
     radio: bool
@@ -106,6 +106,7 @@ class DeezerArtistContributors(DeezerArtistBase):
     
     Includes share URL, radio availability, and the artist's role in the track.
     """
+    link: HttpUrl
     share : HttpUrl
     radio: bool
     role : str
@@ -115,6 +116,7 @@ class DeezerArtistTrack(DeezerArtistBase):
     
     Simplified artist representation with share URL and radio availability.
     """
+    link: HttpUrl
     share : HttpUrl
     radio : bool
 
@@ -123,6 +125,7 @@ class DeezerArtist(DeezerArtistBase):
     
     Contains all available artist information including statistics and sharing options.
     """
+    link: HttpUrl
     share : HttpUrl
     nb_album : int
     nb_fan : int
@@ -150,7 +153,7 @@ class DeezerAlbumBase(BaseModel):
     cover_big: Optional[HttpUrl] = None
     cover_xl: Optional[HttpUrl] = None
     md5_image: str
-    tracklist: HttpUrl
+    tracklist: str
     type: Literal["album"] = "album"
 
 
@@ -164,7 +167,7 @@ class DeezerAlbumSearch(DeezerAlbumBase):
     nb_tracks: int
     record_type: str
     explicit_lyrics : bool
-    artist: DeezerArtist
+    artist: DeezerArtistBase
 
 class DeezerAlbumTrack(DeezerAlbumBase):
     """Album object as it appears in track contexts.
@@ -184,7 +187,7 @@ class DeezerAlbum(DeezerAlbumBase):
     share : HttpUrl
     genre_id: int
     genres: List[DeezerGenre]  # Direct list after extraction
-    artist: DeezerArtist
+    artist: DeezerArtistBase
 
     @field_validator('genres', mode='before')
     @classmethod
@@ -246,12 +249,12 @@ class DeezerTrack(DeezerTrackBase):
     """
     isrc : str
     share : HttpUrl
-    duration : str
+    duration : int
     track_position : int
     disk_number : int
     release_date : datetime
-    bpm : int
-    gain : str
+    bpm : float
+    gain : float
     available_countries : List[str]
     contributors : List[DeezerArtistContributors]
     artist : DeezerArtistTrack
@@ -283,14 +286,16 @@ class DeezerPlaylistBase(BaseModel):
     picture_big: Optional[HttpUrl] = None
     picture_xl: Optional[HttpUrl] = None
     checksum: str
-    tracklist: HttpUrl
+    tracklist: str
     creation_date: datetime
     add_date : Optional[datetime] = None
     mod_date : Optional[datetime] = None
     md5_image: str
     picture_type: str
-    user: DeezerUserBase
     type: Literal["playlist"] = "playlist"
+
+class DeezerPlaylistSearch(DeezerPlaylistBase):
+    user: DeezerUserBase
 
 class DeezerPlaylist(DeezerPlaylistBase):
     """Complete playlist object with full metadata and track list.
@@ -298,7 +303,7 @@ class DeezerPlaylist(DeezerPlaylistBase):
     Contains all available playlist information including description, collaboration settings, and tracks.
     """
     description: str
-    duration: str
+    duration: int
     public: bool
     is_loved_track: bool
     collaborative: bool
