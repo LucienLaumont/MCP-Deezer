@@ -247,13 +247,20 @@ async def handle_list_tools() -> list[Tool]:
         ),
         Tool(
             name="get_playlist",
-            description="Get a playlist by its Deezer ID",
+            description="Get a playlist by its Deezer ID with optional tracks limit for performance",
             inputSchema={
                 "type": "object",
                 "properties": {
                     "playlist_id": {
                         "type": "integer",
                         "description": "The Deezer playlist ID"
+                    },
+                    "tracks_limit": {
+                        "type": "integer",
+                        "description": "Maximum number of tracks to return for performance (default: 20, set to 0 for all tracks)",
+                        "default": 20,
+                        "minimum": 0,
+                        "maximum": 40
                     }
                 },
                 "required": ["playlist_id"]
@@ -506,7 +513,8 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
         
         elif name == "get_playlist":
             playlist_id = arguments.get("playlist_id")
-            result = await playlist_client.get_playlist(playlist_id)
+            tracks_limit = arguments.get("tracks_limit", 20)
+            result = await playlist_client.get_playlist(playlist_id, tracks_limit=tracks_limit)
             if result:
                 creator_name = result.creator.name if result.creator else "Unknown"
                 return [TextContent(
@@ -534,7 +542,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
             result = await playlist_client.get_playlist_by_name_and_creator(playlist_name, creator_name, limit=limit, order=order)
             if result:
                 # Get full playlist details using the ID to access all fields like fans, duration, etc.
-                full_playlist = await playlist_client.get_playlist(result.id)
+                full_playlist = await playlist_client.get_playlist(result.id, tracks_limit=20)
                 if full_playlist:
                     return [TextContent(
                         type="text",
@@ -577,9 +585,7 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
                 for i, user in enumerate(results, 1):
                     users_text += f"**{i}.** {user.name}\n"
                     users_text += f"   ID: {user.id}\n"
-                    if user.country:
-                        users_text += f"   Country: {user.country}\n"
-                    users_text += f"   Link: {user.link}\n\n"
+                    users_text += f"   Tracklist: {user.tracklist}\n"
                 return [TextContent(type="text", text=users_text)]
             else:
                 return [TextContent(type="text", text=f"❌ No users found for '{user_name}'")]
@@ -592,26 +598,11 @@ async def handle_call_tool(name: str, arguments: dict[str, Any] | None) -> list[
                 user_info += f"**ID:** {result.id}\n"
                 user_info += f"**Name:** {result.name}\n"
                 
-                if result.firstname and result.lastname:
-                    user_info += f"**Full Name:** {result.firstname} {result.lastname}\n"
-                elif result.firstname:
-                    user_info += f"**First Name:** {result.firstname}\n"
-                elif result.lastname:
-                    user_info += f"**Last Name:** {result.lastname}\n"
-                
                 if result.country:
                     user_info += f"**Country:** {result.country}\n"
-                if result.inscription_date:
-                    user_info += f"**Member Since:** {result.inscription_date}\n"
-                if result.lang:
-                    user_info += f"**Language:** {result.lang}\n"
-                
+
                 user_info += f"**Link:** {result.link}\n"
-                
-                if result.picture_medium:
-                    user_info += f"**Picture:** {result.picture_medium}"
-                else:
-                    user_info += f"**Picture:** N/A"
+                user_info += f"**Tracklist**: {result.tracklist}\n"
                 
                 return [TextContent(type="text", text=user_info)]
             else:

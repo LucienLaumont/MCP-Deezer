@@ -58,6 +58,7 @@ class DeezerUser(DeezerUserBase):
     
     Contains all available user information including profile pictures and country data.
     """
+    link : HttpUrl
     picture: Optional[HttpUrl] = None
     picture_small: Optional[HttpUrl] = None
     picture_medium: Optional[HttpUrl] = None
@@ -214,15 +215,23 @@ class DeezerTrackBase(BaseModel):
     readable: bool
     title: str
     title_short: str
-    title_version: str
+    title_version: Optional[str] = None
     link: HttpUrl
     rank: int
     explicit_lyrics: bool
     explicit_content_lyrics: int
     explicit_content_cover: int
-    preview: HttpUrl
+    preview: Optional[HttpUrl] = None
     md5_image : str
     type: Literal["track"] = "track"
+    
+    @field_validator('preview', mode='before')
+    @classmethod
+    def validate_preview_url(cls, v):
+        """Handle empty preview URLs."""
+        if v == '' or v is None:
+            return None
+        return v
 
 class DeezerTrackSearch(DeezerTrackBase):
     """Track object as returned in search contexts.
@@ -324,7 +333,7 @@ class DeezerPlaylist(DeezerPlaylistBase):
         return v
 
 
-
+DeezerUser.model_rebuild()
 DeezerAlbum.model_rebuild()
 DeezerTrack.model_rebuild()
 DeezerPlaylist.model_rebuild()

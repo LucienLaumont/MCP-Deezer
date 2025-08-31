@@ -1,6 +1,6 @@
 from typing import List, Optional
 from pydantic import BaseModel
-from mcp_deezer.types import DeezerUserBase, DeezerUserSearch
+from mcp_deezer.types import DeezerUser, DeezerUserSearch
 from .base import BaseDeezerClient
 
 
@@ -30,9 +30,9 @@ class UserNameClient(BaseDeezerClient):
         except Exception as e:
             return []
     
-    async def get_user(self, user_id: int) -> Optional[DeezerUserBase]:
+    async def get_user(self, user_id: int) -> Optional[DeezerUser]:
         try:
             data = await self._get(f"user/{user_id}")
-            return DeezerUserBase(**data)
+            return DeezerUser(**data)
         except Exception as e:
             return None

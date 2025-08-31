@@ -7,18 +7,28 @@ class PlaylistNameClient(BaseDeezerClient):
     """Client to retrieve playlists by their name and ID."""
 
 
-    async def get_playlist(self, playlist_id: int) -> Optional[DeezerPlaylist]:
+    async def get_playlist(self, playlist_id: int, tracks_limit: Optional[int] = None) -> Optional[DeezerPlaylist]:
         """
         Retrieve a complete playlist by its ID.
 
         Args:
             playlist_id (int): The Deezer playlist ID
+            tracks_limit (Optional[int]): Limit the number of tracks returned for performance (default: None = all tracks)
 
         Returns:
             Optional[DeezerPlaylist]: The complete playlist data or None if not found
         """
         try:
-            playlist_response = await self._get(f"playlist/{playlist_id}")
+            params = {}
+            if tracks_limit is not None:
+                params["limit"] = tracks_limit
+                
+            playlist_response = await self._get(f"playlist/{playlist_id}", params=params if params else None)
+            
+            # If tracks_limit is specified and we have tracks data, limit it manually as fallback
+            if tracks_limit is not None and "tracks" in playlist_response and "data" in playlist_response["tracks"]:
+                playlist_response["tracks"]["data"] = playlist_response["tracks"]["data"][:tracks_limit]
+            
             return DeezerPlaylist(**playlist_response)
             
         except Exception as e:
@@ -91,8 +101,8 @@ class PlaylistNameClient(BaseDeezerClient):
             Optional[DeezerPlaylistSearch]: The best matching playlist or None if not found
         """
         try:
-            # Build combined search query
-            search_query = f'playlist:"{playlist_name}" user:"{creator_name}"'
+            # Build combined search query - simple format works better
+            search_query = f"{playlist_name} {creator_name}"
             
             search_params = {
                 "q": search_query,
