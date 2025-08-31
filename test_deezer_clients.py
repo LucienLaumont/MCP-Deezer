@@ -308,7 +308,7 @@ async def test_playlist_client():
     
     # Test playlist by ID (returns DeezerPlaylist)
     print("\n--- Playlist by ID (DeezerPlaylist) ---")
-    test_playlist_ids = [1313621735, 2274923946, 908622995]  # Known playlist IDs
+    test_playlist_ids = [1313621735, 3279798822, 1478649355]  # Known playlist IDs
     for playlist_id in test_playlist_ids:
         try:
             result = await client.get_playlist(playlist_id)
